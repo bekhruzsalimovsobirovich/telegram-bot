@@ -49,7 +49,7 @@ class TelegramBotController extends Controller
             Telegram::setAsyncRequest(true)
                 ->sendMessage([
                     'chat_id' => $chatId,
-                    'text' => 'Assalomu aleykum botimizga xush kelibsiz ' . '<b>' . $username . '</b>',
+                    'text' => 'Assalomu aleykum botimizga xush kelibsiz🙂 ' . '<b>' . $username . '</b>',
                     'parse_mode' => 'HTML',
                     'reply_markup' => json_encode($keyboard),
                 ]);
@@ -58,26 +58,17 @@ class TelegramBotController extends Controller
         if (isset($update->getMessage()->contact)) {
             $phoneNumber = $update->getMessage()->contact->phone_number;
 
-            // Check if the phone number already exists
-            $persons = People::query()->where('phone', $phoneNumber)->get();
-
-            if (count($persons) != 0) {
-                Telegram::setAsyncRequest(true)
-                    ->sendMessage([
-                        'chat_id' => $chatId,
-                        'text' => 'Siz oldin telefon raqamingizni jo\'natgansiz!',
-                    ]);
-
-                // Remove the keyboard
-                Telegram::setAsyncRequest(true)
-                    ->sendMessage([
-                        'chat_id' => $chatId,
-                        'text' => 'Kontakt yuborish uchun klaviatura o‘chirildi.',
-                        'reply_markup' => json_encode(['remove_keyboard' => true]),
-                    ]);
-
-                return;
-            }
+//            // Check if the phone number already exists
+//            $persons = People::query()->where('phone', $phoneNumber)->get();
+//
+//            if (count($persons) != 0) {
+//                Telegram::setAsyncRequest(true)
+//                    ->sendMessage([
+//                        'chat_id' => $chatId,
+//                        'text' => 'Siz oldin telefon raqamingizni jo\'natgansiz!',
+//                    ]);
+//                return;
+//            }
 
             // Save the contact
             $people = new People();
@@ -91,13 +82,6 @@ class TelegramBotController extends Controller
                 ->sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Telefon raqamingizni jo\'natganiz uchun tashakkur!',
-                ]);
-
-            // Remove the keyboard
-            Telegram::setAsyncRequest(true)
-                ->sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => 'Kontakt yuborish uchun klaviatura o‘chirildi.',
                     'reply_markup' => json_encode(['remove_keyboard' => true]),
                 ]);
         }
