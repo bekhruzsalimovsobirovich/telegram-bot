@@ -15,6 +15,6 @@ class Appeal extends Model
 
     public function people(): BelongsTo
     {
-        return $this->belongsTo(People::class);
+        return $this->belongsTo(People::class)->withTrashed();
     }
 }

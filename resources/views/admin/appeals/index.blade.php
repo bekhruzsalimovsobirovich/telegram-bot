@@ -20,8 +20,8 @@
                         @foreach($appeals as $appeal)
                             <tr>
                                 <td>{{ $loop->index + 1 }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#data_{{$appeal->id}}">{{ $appeal->people->name }} <i class="ph-play-circle ms-2"></i></button>
+                                <td role="button" data-bs-toggle="modal" data-bs-target="#data_{{$appeal->id}}" class="fw-bold">
+                                    {{ $appeal->people->name }}
                                     <div id="data_{{$appeal->id}}" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
@@ -43,7 +43,27 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $appeal->text }}</td>
+                                <td role="button" data-bs-toggle="modal" data-bs-target="#text_{{$appeal->id}}" class="fw-bold">
+                                    {{ \Illuminate\Support\Str::limit($appeal->text,100,'...') }}
+                                    <div id="text_{{$appeal->id}}" class="modal fade" tabindex="-1" style="display: none;" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Murojat</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <p>{{ $appeal->text }}</p>
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Yopish</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>{{ \Carbon\Carbon::parse($appeal->created_at) }}</td>
                             </tr>
                         @endforeach

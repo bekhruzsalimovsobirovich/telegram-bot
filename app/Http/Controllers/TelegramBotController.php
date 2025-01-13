@@ -22,7 +22,7 @@ class TelegramBotController extends Controller
 
     public function setWebhook()
     {
-        Telegram::setWebhook(['url' => 'https://f028-83-222-6-113.ngrok-free.app/api/webhook']);
+        Telegram::setWebhook(['url' => 'https://d89c-213-230-93-87.ngrok-free.app/api/webhook']);
 
         return 'success';
     }

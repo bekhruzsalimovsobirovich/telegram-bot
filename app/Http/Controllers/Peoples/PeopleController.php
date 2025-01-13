@@ -12,6 +12,7 @@ class PeopleController extends Controller
     public function index()
     {
         $peoples = People::query()
+            ->withTrashed()
             ->paginate(20);
 
         return view('admin.peoples.index', [
