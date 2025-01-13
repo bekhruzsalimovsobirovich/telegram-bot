@@ -15,9 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('chat_id');
             $table->string('name');
-            $table->string('username')->unique();
+            $table->string('username')->unique()->nullable();
             $table->string('phone')->unique();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

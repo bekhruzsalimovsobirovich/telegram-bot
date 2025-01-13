@@ -22,7 +22,7 @@ class TelegramBotController extends Controller
 
     public function setWebhook()
     {
-        Telegram::setWebhook(['url' => 'https://28c9-213-230-96-223.ngrok-free.app/api/webhook']);
+        Telegram::setWebhook(['url' => 'https://f028-83-222-6-113.ngrok-free.app/api/webhook']);
 
         return 'success';
     }
@@ -34,19 +34,25 @@ class TelegramBotController extends Controller
         $username = $update->getMessage()->getChat()->getFirstName() ?? 'Guest'; // Fallback if username is not set
         $message = $update->getMessage()->getText();
 
-        if (strtolower($message) === '/start') {
-            $keyboard = [
-                'keyboard' => [
+        $keyboard = [
+            'keyboard' => [
+                [
                     [
-                        [
-                            'text' => 'Kontaktni yuborish📞',
-                            'request_contact' => true, // Enable contact sharing
-                        ],
+                        'text' => 'Kontaktni yuborish📞',
+                        'request_contact' => true, // Enable contact sharing
                     ],
                 ],
-                'resize_keyboard' => true, // Adjust the keyboard size
-                'one_time_keyboard' => true, // Hide the keyboard after use
-            ];
+            ],
+            'resize_keyboard' => true, // Adjust the keyboard size
+            'one_time_keyboard' => true, // Hide the keyboard after use
+        ];
+        if (strtolower($message) === '/start') {
+            $people = People::query()->where('chat_id', $chatId)->first();
+
+            if ($people) {
+                // Foydalanuvchining ma'lumotlarini o'chirish
+                People::where('chat_id', $chatId)->delete();
+            }
 
             Telegram::sendMessage([
                     'chat_id' => $chatId,
@@ -64,9 +70,10 @@ class TelegramBotController extends Controller
 
         if (isset($update->getMessage()->contact)) {
             $phoneNumber = $update->getMessage()->contact->phone_number;
-
-            People::query()
-                ->where('chat_id', $chatId)->delete();
+            $people = People::query()->withTrashed()->where('chat_id',$chatId)->first();
+            if ($people){
+                $people->restore();
+            }
 
             People::updateOrCreate([
                 'chat_id' => $chatId
@@ -91,33 +98,47 @@ class TelegramBotController extends Controller
         if (isset($update->message) && !empty($update->message->text) && $update->message->text != '/start') {
             $people = People::query()->where('chat_id', $chatId)->first();
 
-            $lastEntry = Appeal::query()
-                ->where('people_id',$people->id)
-                ->latest()
-                ->first();
+            if ($people){
+                $lastEntry = Appeal::query()
+                    ->where('people_id',$people->id)
+                    ->latest()
+                    ->first();
 
-            if($lastEntry){
-                $lastCreatedAt = Carbon::parse($lastEntry->created_at);
+                if($lastEntry){
+                    $lastCreatedAt = Carbon::parse($lastEntry->created_at);
 
-                if ($lastCreatedAt->diffInHours(Carbon::now()) < 1){
-                    Telegram::sendMessage([
-                        'chat_id' => $chatId,
-                        'text' => 'Keyingi murojatni yuborish uchun 1 soat kuting‼‼',
-                    ]);
+                    if ($lastCreatedAt->diffInHours(Carbon::now()) < 1){
+                        Telegram::sendMessage([
+                            'chat_id' => $chatId,
+                            'text' => 'Keyingi murojatni yuborish uchun 1 soat kuting‼‼',
+                        ]);
 
-                    return ;
+                        return ;
+                    }
                 }
+                People::query()->where('chat_id',$chatId)->first()->restore();
+
+                Appeal::create([
+                    'people_id' => $people->id,
+                    'text' => $update->message->text,
+                ]);
+
+
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Murojatingiz ko\'rib chiqish uchun yuborildi. Siz bilan albatta bog\'lanishadi',
+                ]);
+
+                return ;
+            }else{
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Iltimos telefon raqamingizni qaytadan jo\'nating!',
+                    'reply_markup' => json_encode($keyboard),
+                ]);
+
+                return ;
             }
-
-            Appeal::create([
-                'people_id' => $people->id,
-                'text' => $update->message->text,
-            ]);
-
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Murojatingiz ko\'rib chiqish uchun yuborildi. Siz bilan albatta bog\'lanishadi',
-            ]);
 
         }
 
