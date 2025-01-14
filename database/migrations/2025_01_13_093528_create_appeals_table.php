@@ -19,6 +19,7 @@ return new class extends Migration
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->text('text');
+            $table->enum('status',['pending','success'])->default('pending');
             $table->timestamps();
         });
     }

@@ -11,7 +11,7 @@ class Appeal extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['people_id','text'];
+    protected $fillable = ['people_id','text','status'];
 
     public function people(): BelongsTo
     {

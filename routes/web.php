@@ -24,4 +24,5 @@ Route::group(['prefix' => 'admin','as' => 'admin.','middleware' => ['auth:sanctu
     Route::get('/',[AuthController::class,'index'])->name('index');
    Route::get('peoples',[PeopleController::class,'index'])->name('peoples');
    Route::get('appeals',[PeopleController::class,'appeals'])->name('appeals');
+   Route::post('check/{appeal}/appeal',[PeopleController::class,'checkAppeal'])->name('check-appeal');
 });

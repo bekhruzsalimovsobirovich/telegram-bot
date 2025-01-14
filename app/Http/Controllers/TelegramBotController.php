@@ -22,7 +22,7 @@ class TelegramBotController extends Controller
 
     public function setWebhook()
     {
-        Telegram::setWebhook(['url' => 'https://d89c-213-230-93-87.ngrok-free.app/api/webhook']);
+        Telegram::setWebhook(['url' => 'https://55b9-213-230-96-223.ngrok-free.app/api/webhook']);
 
         return 'success';
     }
@@ -69,30 +69,43 @@ class TelegramBotController extends Controller
         }
 
         if (isset($update->getMessage()->contact)) {
+            $phones = People::query()->get()->pluck('phone')->toArray();
             $phoneNumber = $update->getMessage()->contact->phone_number;
-            $people = People::query()->withTrashed()->where('chat_id',$chatId)->first();
-            if ($people){
-                $people->restore();
-            }
 
-            People::updateOrCreate([
-                'chat_id' => $chatId
-            ],[
-                'name' =>$update->getMessage()->getChat()->getFirstName(),
-                'username' =>$update->getMessage()->getChat()->getUsername(),
-                'phone' =>$phoneNumber,
-            ]);
+            if (in_array($phoneNumber, $phones)) {
 
-            Telegram::sendMessage([
+                $people = People::query()->withTrashed()->where('chat_id',$chatId)->first();
+                if ($people){
+                    $people->restore();
+                }
+
+                People::updateOrCreate([
+                    'phone' => $phoneNumber
+                ],[
+                    'name' =>$update->getMessage()->getChat()->getFirstName(),
+                    'username' =>$update->getMessage()->getChat()->getUsername(),
+                    'chat_id' =>$chatId,
+                ]);
+
+                Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Telefon raqamingizni jo\'natganiz uchun tashakkur😊!',
                     'reply_markup' => json_encode(['remove_keyboard' => true]),
                 ]);
 
-            Telegram::sendMessage([
+                Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Murojaatingizni yuborishingiz mumkin, Siz bilan tez orada bog\'lanishadi😊',
                 ]);
+            }else{
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Siz ushbu botdan foydalana olmaysiz😕',
+                    'reply_markup' => json_encode(['remove_keyboard' => true]),
+                ]);
+
+                return ;
+            }
         }
 
         if (isset($update->message) && !empty($update->message->text) && $update->message->text != '/start') {

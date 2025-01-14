@@ -14,6 +14,8 @@
                             <th>Kim yuborgan</th>
                             <th>Murojat</th>
                             <th>Yuborilgan sana</th>
+                            <th>Tekshirilgan sana</th>
+                            <th>Holati</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -65,6 +67,22 @@
                                     </div>
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($appeal->created_at) }}</td>
+                                <td>
+                                    @if($appeal->status == 'success')
+                                        {{ $appeal->updated_at }}
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($appeal->status == 'pending')
+                                        {{--                                        <span class="badge bg-warning">{{ $appeal->status }}</span>--}}
+                                        <form method="post" action="{{ route('admin.check-appeal',$appeal) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success"><i class="ph-check"></i></button>
+                                        </form>
+                                    @else
+                                        <span class="badge bg-success">Tekshirilgan</span>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                         </tbody>

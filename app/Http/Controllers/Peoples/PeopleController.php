@@ -29,4 +29,13 @@ class PeopleController extends Controller
             'appeals' => $appeals
         ]);
     }
+
+    public function checkAppeal(Appeal $appeal)
+    {
+        $appeal->update([
+            'status' => 'success'
+        ]);
+
+        return redirect()->back();
+    }
 }
